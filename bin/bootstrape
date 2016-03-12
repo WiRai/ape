@@ -21,7 +21,17 @@ def mkdir(dirname):
 class VirtualEnv(object):
 
     def __init__(self, venv_dir):
-        self.bin_dir = pj(venv_dir, 'bin')
+        self.bin_dir = None
+        bin_dirs = ['bin', 'Scripts']
+
+        for basename in bin_dirs:
+            absdir = pj(venv_dir, basename)
+            if os.path.isdir(absdir):
+                self.bin_dir = absdir
+                break
+        
+        if not self.bin_dir:
+            raise Exception('bin dir not found in virtualenv')
 
     def call_bin(self, script_name, args):
         call([pj(self.bin_dir, script_name)] + list(args))
