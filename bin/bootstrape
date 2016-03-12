@@ -101,7 +101,7 @@ def main(args):
         'pkg_resources.resource_filename('
         '"ape", "resources/activape_template"'
         ')), "%s")'
-         % activape_dst
+         % activape_dst.replace('\\', '/')
     )
 
     aperun_dst = pj(_ape_dir, 'aperun')
@@ -111,7 +111,7 @@ def main(args):
         'pkg_resources.resource_filename('
         '"ape", "resources/aperun_template"'
         ')), "%s")'
-         % aperun_dst
+         % aperun_dst.replace('\\', '/')
     )
 
     st = os.stat(aperun_dst)
