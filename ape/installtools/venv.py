@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from subprocess import call
 from os.path import join as pj
 import glob

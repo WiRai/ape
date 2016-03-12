@@ -7,13 +7,14 @@ from ape import tasks, TaskNotFound, FeatureNotFound, EnvironmentIncomplete
 from featuremonkey import get_features_from_equation_file
 
 def get_task_parser(task):
-    '''
-    construct an ArgumentParser for task
-    this function returns a tuple (parser, proxy_args)
-    if task accepts varargs only, proxy_args is True.
-    if task accepts only positional and explicit keyword args, 
-    proxy args is False.
-    '''
+    """
+    Construct an ArgumentParser for task this function returns a tuple (parser, proxy_args).
+    If task accepts varargs only, proxy_args is True.
+    If task accepts only positional and explicit keyword args, proxy args is False.
+    :param task:
+    :return:
+    """
+
 
     args, varargs, keywords, defaults = inspect.getargspec(task)
     defaults = defaults or []
@@ -37,9 +38,12 @@ def get_task_parser(task):
         raise
 
 def invoke_task(task, args):
-    '''
-    invoke task with args
-    '''
+    """
+    Invoke task with args
+    :param task:
+    :param args:
+    :return:
+    """
     parser, proxy_args = get_task_parser(task)
     if proxy_args:
         task(*args)
@@ -48,10 +52,13 @@ def invoke_task(task, args):
         task(**vars(pargs))
 
 def run(args, features=None):
-    '''
-    composes task modules of the selected features and calls the
-    task given by args
-    '''
+    """
+    Composes task modules of the selected features and calls the
+    task given by args.
+    :param args:
+    :param features:
+    :return:
+    """
 
     features = features or []
     for feature in features:
@@ -79,27 +86,28 @@ def run(args, features=None):
             invoke_task(task, remaining_args)
 
 def main():
-    '''
-    entry point when used via command line
-    
-    features are given using the environment variable PRODUCT_EQUATION.
+    """
+    Entry point when used via command line
+
+    Features are given using the environment variable PRODUCT_EQUATION.
     If it is not set, PRODUCT_EQUATION_FILENAME is tried: if it points
     to an existing equation file that selection is used.
     If that fails ``ape.EnvironmentIncomplete`` is raised.
-    '''
+    :return:
+    """
 
-    #check APE_PREPEND_FEATURES
+    # check APE_PREPEND_FEATURES
     features = os.environ.get('APE_PREPEND_FEATURES', '').split()
-    #features can be specified inline in PRODUCT_EQUATION
+    # features can be specified inline in PRODUCT_EQUATION
     inline_features = os.environ.get('PRODUCT_EQUATION', '').split()
     if inline_features:
-        #append inline features
+        # append inline features
         features += inline_features
     else:
-        #fallback: features are specified in equation file
+        # fallback: features are specified in equation file
         feature_file = os.environ.get('PRODUCT_EQUATION_FILENAME', '')
         if feature_file:
-            #append features from equation file
+            # append features from equation file
             features += get_features_from_equation_file(feature_file)
         else:
             if not features:
@@ -111,7 +119,7 @@ def main():
                 )
                 sys.exit(1)
 
-    #run ape with features selected
+    # run ape with features selected
     run(sys.argv, features=features)
 
 if __name__ == '__main__':

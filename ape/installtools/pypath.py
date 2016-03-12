@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import json
 
@@ -15,4 +17,4 @@ def generate_pypath_for_initenv():
     return ':'.join(get_extra_pypath()[1:])
 
 if __name__ == '__main__':
-    print generate_pypath_for_initenv(),
+    print(generate_pypath_for_initenv(), end=' ')

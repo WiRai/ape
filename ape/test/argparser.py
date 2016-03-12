@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 import unittest
-import sys
 from ape.main import get_task_parser, invoke_task
-import sys
 from .base import SilencedTest
 
-class TestArgParser(SilencedTest, unittest.TestCase):
+class ArgParserTest(SilencedTest, unittest.TestCase):
 
     def test_noparam(self):
 

@@ -1,9 +1,6 @@
-from __future__ import absolute_import
-from __future__ import print_function
 from ape import tasks
 import os
 import sys
-from six.moves import filter
 
 
 class Config(object):
@@ -44,30 +41,30 @@ def get_products(container_name):
     def predicate(p):
         return not p.startswith('.') and not p.startswith('_')
 
-    products = list(filter(predicate, products))
+    products = filter(predicate, products)
     return products
 
 
 @tasks.register
 def info():
     '''list information about this productive environment'''
-    print()
-    print('root directory         :', tasks.conf.APE_ROOT)
-    print()
-    print('active container       :', os.environ.get('CONTAINER_NAME', ''))
-    print()
-    print('active product         :', os.environ.get('PRODUCT_NAME', ''))
-    print()
-    print('ape feature selection  :', tasks.FEATURE_SELECTION)
-    print()
-    print('containers and products:')
-    print('-' * 30)
-    print()
+    print
+    print 'root directory         :', tasks.conf.APE_ROOT
+    print
+    print 'active container       :', os.environ.get('CONTAINER_NAME', '')
+    print
+    print 'active product         :', os.environ.get('PRODUCT_NAME', '')
+    print
+    print 'ape feature selection  :', tasks.FEATURE_SELECTION
+    print
+    print 'containers and products:'
+    print '-' * 30
+    print
     for container_name in tasks.get_containers():
-        print(container_name)
+        print container_name
         for product_name in tasks.get_products(container_name):
-            print('    ' + product_name)
-    print()
+            print '    ' + product_name
+    print
 
 
 @tasks.register
@@ -85,21 +82,21 @@ def cd(doi):
     elif len(parts) == 2:
         container_name, product_name = parts[0], parts[1]
     else:
-        print('unable to parse context - format: <container_name>:<product_name>')
+        print 'unable to parse context - format: <container_name>:<product_name>'
         sys.exit(1)
 
     if container_name not in tasks.get_containers():
-        print('No such container')
+        print 'No such container'
     else:
         if product_name:
             if product_name not in tasks.get_products(container_name):
-                print('No such product')
+                print 'No such product'
             else:
-                print(tasks.conf.SOURCE_HEADER)
-                print('cd ' + tasks.get_product_dir(container_name, product_name))
+                print tasks.conf.SOURCE_HEADER
+                print 'cd ' + tasks.get_product_dir(container_name, product_name)
         else:
-            print(tasks.conf.SOURCE_HEADER)
-            print('cd ' + tasks.get_container_dir(container_name))
+            print tasks.conf.SOURCE_HEADER
+            print 'cd ' + tasks.get_container_dir(container_name)
 
 
 SWITCH_TEMPLATE = '''%(source_header)s
@@ -125,19 +122,19 @@ def switch(poi):
     if len(parts) == 2:
         container_name, product_name = parts
     else:
-        print('unable to parse context: ', poi)
+        print 'unable to parse context: ', poi
         sys.exit(1)
 
     if container_name not in tasks.get_containers():
-        print('No such container')
+        print 'No such container'
     elif product_name not in tasks.get_products(container_name):
-        print('No such product')
+        print 'No such product'
     else:
-        print(SWITCH_TEMPLATE % dict(
+        print SWITCH_TEMPLATE % dict(
             source_header=tasks.conf.SOURCE_HEADER,
             container_name=container_name,
             product_name=product_name
-        ))
+        )
 
 
 @tasks.register
@@ -161,15 +158,15 @@ def install_container(container_name):
     if os.path.exists(CONTAINER_DIR):
         os.environ['CONTAINER_DIR'] = CONTAINER_DIR
     else:
-        print('ERROR: this container does not exist!')
+        print 'ERROR: this container does not exist!'
         return
     
     install_script = os.path.join(CONTAINER_DIR, 'install.py')
     if os.path.exists(install_script):
-        print('... running install.py for %s' % container_name)
+        print '... running install.py for %s' % container_name
         os.system('python %s' % install_script)
     else:
-        print('ERROR: this container does not provide an install.py!')
+        print 'ERROR: this container does not provide an install.py!'
         return
 
 

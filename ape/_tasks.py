@@ -3,6 +3,8 @@ APE - a productive environment
 
 
 """
+from __future__ import absolute_import
+from __future__ import print_function
 FEATURE_SELECTION = []
 #Tasks specified here are globally available.
 #
@@ -59,29 +61,29 @@ def explain_feature(featurename):
         
         
     if featurename in featuremonkey.get_features_from_equation_file(os.environ['PRODUCT_EQUATION_FILENAME']): 
-        print
-        print featurename
-        print '-' * 60
-        print
+        print()
+        print(featurename)
+        print('-' * 60)
+        print()
         is_subfeature = '.features.' in featurename
         try:
             feature_module = importlib.import_module(featurename)
         except ImportError:
-            print 'Error: unable to import feature "%s"' % featurename
+            print('Error: unable to import feature "%s"' % featurename)
 
-        print 'Location: %s' % os.path.dirname(feature_module.__file__)
-        print
+        print('Location: %s' % os.path.dirname(feature_module.__file__))
+        print()
         if is_subfeature:
-            print 'Version: see parent feature'
-            print
+            print('Version: see parent feature')
+            print()
         else:
-            print 'Version: %s' % str(guess_version(feature_module))
-            print
-            print 'git: %s' % git_rev(feature_module)
-            print
-            print 'git changed: %s' % '\n\t\t'.join(git_changes(feature_module).split('\n'))    
+            print('Version: %s' % str(guess_version(feature_module)))
+            print()
+            print('git: %s' % git_rev(feature_module))
+            print()
+            print('git changed: %s' % '\n\t\t'.join(git_changes(feature_module).split('\n')))    
     else:
-        print 'No feature named ' + featurename
+        print('No feature named ' + featurename)
    
 
 

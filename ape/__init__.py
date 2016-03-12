@@ -1,6 +1,7 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import featuremonkey
 import inspect
-from functools import wraps
 
 __version__ = '0.4.0'
 __author__ = 'Hendrik Speidel <hendrik@schnapptack.de>'
@@ -106,28 +107,28 @@ class Tasks(object):
     def help(self, taskname=None):
         '''list tasks or provide help for specific task'''
         if not taskname:
-            print inspect.getdoc(self._tasks)
-            print
-            print 'Available tasks:'
-            print
+            print(inspect.getdoc(self._tasks))
+            print()
+            print('Available tasks:')
+            print()
             for task in self.get_tasks():
-                print '  ' + get_signature(*task)
+                print('  ' + get_signature(*task))
                 help_msg = inspect.getdoc(task[1]) or ''
                 help_msg = help_msg.split('\n')[0]
-                print '    ' + help_msg
-                print
+                print('    ' + help_msg)
+                print()
         else:
             try:
                 task = self.get_task(taskname)
-                print SHORT_HEADER
-                print get_signature(task.__name__, task)
-                print
-                print inspect.getdoc(task)
-                print
-                print 'defined in: ' + inspect.getfile(task)
-                print
+                print(SHORT_HEADER)
+                print(get_signature(task.__name__, task))
+                print()
+                print(inspect.getdoc(task))
+                print()
+                print('defined in: ' + inspect.getfile(task))
+                print()
             except TaskNotFound:
-                print 'Task "%s" not found! Use "ape help" to get usage information.' % taskname
+                print('Task "%s" not found! Use "ape help" to get usage information.' % taskname)
 
     def __getattr__(self, name):
         '''simple proxy to tasks module

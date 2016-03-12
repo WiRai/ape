@@ -23,7 +23,7 @@ class Params(object):
         else:
             self._data[name] = value
 
-class TestTaskInvokation(SilencedTest, unittest.TestCase):
+class TaskInvokationTest(SilencedTest, unittest.TestCase):
 
     def test_noparam(self):
 
