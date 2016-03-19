@@ -86,7 +86,7 @@ _init_ape() {
             echo ""
             echo "=> switched to virtualenv: ${APE_CONTAINER_VENV}"
             echo ""
-            source ${APE_CONTAINER_VENV}/bin/activate
+            source ${APE_CONTAINER_VENV}/${ACTIVATE_SCRIPT}
         else
             echo ""
             echo "=> using global virtualenv: ${APE_VIRTUALENV}"
