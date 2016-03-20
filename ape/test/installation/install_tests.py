@@ -20,7 +20,6 @@ class InstallTest(unittest.TestCase):
         """
         return os.path.join(tempfile.gettempdir(), 'webapps_%s' % uuid.uuid4())
 
-
     def test_simple_installation(self):
         """
         Tests the simple installation without any further arguments.
@@ -29,7 +28,6 @@ class InstallTest(unittest.TestCase):
         sys.argv = ['ape_install', self._get_webapps_dir()]
         ape_install.main()
 
-
     def test_python_executable_installation(self):
         """
         Tests the installation with an explicitly passed python executable.
@@ -37,7 +35,6 @@ class InstallTest(unittest.TestCase):
         """
         sys.argv = ['ape_install', self._get_webapps_dir(), '--p', 'python3']
         ape_install.main()
-
 
     def test_ape_version_installation(self):
         """
