@@ -23,17 +23,19 @@ On Debian/Ubuntu, these are also available as system packages ``python-pip`` and
 
 Fetch the script to bootstrap ``ape`` in container mode::
 
-    $ wget https://raw.github.com/henzk/ape/master/bin/bootstrape
-    $ chmod 0755 bootstrape
+    $ wget https://raw.github.com/henzk/ape/master/bin/bootstrape | python - aperoot
 
 
-Now, run ``bootstrape`` to create the container structure in a folder called ``aperoot``\ (change this to your liking)::
+Now, run ``ape_install`` to create the container structure in a folder called ``aperoot``\ (change this to your liking)::
 
-    $ bootstrape aperoot
+    $  $ wget https://raw.github.com/henzk/ape/master/bin/bootstrape | python - ape_install aperoot [--v <VERSION>] [--c <COMMIT_ID>] [--p <PYTHON EXECUTABLE>]
 
-To install the development version, run this instead::
+The only required argument is the first one, specifying the target folder or ape root folder.
+The following arguments are optional:
 
-    $ bootstrape --dev aperoot
+* ``--v <VERSION>`` specifies a specific ape version
+* ``--v <COMMIT_ID>`` specifies a specific ape commit id
+* ``--p <PYTHON EXECUTABLE>`` specifies a specific python executable, e.g. to use python 3 for the virtualenv creation.
 
 After the process has finished a folder ``aperoot`` is available. It contains all necessary files and dependencies.
 A virtualenv has been created at ``aperoot/_ape/venv``.
