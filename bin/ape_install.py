@@ -33,21 +33,27 @@ class VirtualEnv(object):
 
 class VersionCommitIdClash(Exception):
     """
-    Raised in case a version and commit ID was passed.
+    Raised in case both version and commit ID was passed which is illegal
+    as both are exclusive.
     """
     pass
 
 
 class CommandLineParser(object):
     """
-    Wrapper arround argsparse.ArgumentParser in order to provide and api
-    to construct ape-installation-specific variables that can
-    be accessed from the caller code.
+    Wrapper arround argsparse.ArgumentParser. Encapsulates
+    arg parsing and the construction of variables, such as the ape_install_args which
+    may be the stable ape version from pypie or a specific commit.
+
+    In fact this class encapsulates the variability originating from several script
+    arguments to one common api. The installation routine thus only uses this
+    api without bothering about python version for virtualenv or ape version/commit id.
     """
 
     def __init__(self):
         """
         Initializes the argparser.
+        Pretty good overview about the commands the install script provides.
         """
 
         parser = argparse.ArgumentParser(description='Process some integers.')
@@ -74,14 +80,13 @@ class CommandLineParser(object):
         )
 
         self.arg_dict = parser.parse_args()
-
+        # check for exclusive arguments.
         if self.arg_dict.version and self.arg_dict.commit_id:
             raise VersionCommitIdClash()
 
     def get_venv_creation_args(self):
         """
-        Returns a list of arguments to install virtualenv taking variability of command line arguments
-        into account.
+        Returns a list of arguments to install virtualenv.
         :return: list
         """
         install_cmd = ['virtualenv', self.get_venv_dir(), '--no-site-packages']
@@ -99,14 +104,14 @@ class CommandLineParser(object):
     def get_ape_dir(self):
         """
         Returns the absolute path to the ape dir.
-        :return:
+        :return: string
         """
         return os.path.join(self.get_ape_root_dir(), '_ape')
 
     def get_venv_dir(self):
         """
         Returns the absolute path to the virtualenv dir
-        :return:
+        :return: string
         """
         return os.path.join(self.get_ape_dir(), 'venv')
 
@@ -148,12 +153,14 @@ def main():
     :return:
     """
 
+    # init the argparser
     try:
         cmdargs = CommandLineParser()
     except VersionCommitIdClash as e:
         print('ERROR: either specify version XOR commit_id, not both')
         sys.exit(1)
 
+    # init all variables needed for furher installation
     APE_ROOT_DIR = cmdargs.get_ape_root_dir()
     APE_DIR = cmdargs.get_ape_dir()
     VENV_DIR = cmdargs.get_venv_dir()
@@ -162,7 +169,7 @@ def main():
     ACTIVAPE_DEST = cmdargs.get_activape_dest()
     APERUN_DEST = cmdargs.get_aperun_dest()
 
-
+    # create the ape root dir
     if os.path.exists(APE_ROOT_DIR):
         print('ape root dir already exists: ', APE_ROOT_DIR)
         print('aborted')
@@ -173,11 +180,10 @@ def main():
         print('aborted')
         sys.exit(1)
 
-    # make the ape directories
+    # create the required ape directories
     # -----------------------------------------
     os.mkdir(APE_ROOT_DIR)
     os.mkdir(APE_DIR)
-
 
     # install the venv
     # -----------------------------------------
@@ -188,13 +194,11 @@ def main():
         sys.exit(1)
 
     venv = VirtualEnv(VENV_DIR)
-    print(APE_INSTALL_ARGS)
     venv.pip('install', *APE_INSTALL_ARGS)
 
-
     print('*** creating _ape/activape and aperun scripts')
-    # get the activape_template from inside the ape package installed in venv
 
+    # get the activape_template from inside the ape package installed in venv
     venv.python_oneliner(
         'import os, shutil, pkg_resources;'
         'shutil.copyfile(os.path.abspath('
