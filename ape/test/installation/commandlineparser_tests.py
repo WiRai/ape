@@ -74,8 +74,6 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         return_val = cmdargs.get_ape_install_args()[1] # [1] must be the URL containing the commit id
         self.assertIn('@aabbcc', return_val)
 
-
-
     def test_ape_install_version_xor_commit_id(self):
         """
         Ensures that either version or commit_id can be passed, not both.
