@@ -16,7 +16,18 @@ class VirtualEnv(object):
     """
 
     def __init__(self, venv_dir):
-        self.bin_dir = pj(venv_dir, 'bin')
+        self.bin_dir = None
+        bin_dirs = ['bin', 'Scripts']
+
+        for basename in bin_dirs:
+            absdir = pj(venv_dir, basename)
+            if os.path.isdir(absdir):
+                self.bin_dir = absdir
+                break
+        
+        if not self.bin_dir:
+            raise Exception('bin dir not found in virtualenv')
+
 
     def call_bin(self, script_name, args):
         call([pj(self.bin_dir, script_name)] + list(args))
@@ -206,7 +217,7 @@ def main():
         'pkg_resources.resource_filename('
         '"ape", "resources/activape_template"'
         ')), "%s")'
-         % ACTIVAPE_DEST
+         % ACTIVAPE_DEST.replace('\\', '/')
     )
 
     venv.python_oneliner(
@@ -215,7 +226,7 @@ def main():
         'pkg_resources.resource_filename('
         '"ape", "resources/aperun_template"'
         ')), "%s")'
-         % APERUN_DEST
+         % APERUN_DEST.replace('\\', '/')
     )
 
     st = os.stat(APERUN_DEST)
