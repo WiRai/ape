@@ -37,7 +37,7 @@ setup(
     package_data={'ape': ['resources/activape_template']},
     zip_safe=False,
     include_package_data=True,
-    scripts=['bin/bootstrape', 'bin/ape'],
+    scripts=['bin/ape_install.py', 'bin/ape'],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
