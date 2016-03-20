@@ -56,27 +56,27 @@ class CommandLineParser(object):
         Pretty good overview about the commands the install script provides.
         """
 
-        parser = argparse.ArgumentParser(description='Process some integers.')
+        parser = argparse.ArgumentParser(description='install a productive environment')
         parser.add_argument(
             'ape_root_dir',
             type=str,
-            help='Specifies the APE_ROOT_DIR.'
+            help='Specifies the APE_ROOT_DIR that is to be created.'
         )
         parser.add_argument(
-            '--c', type=str,
+            '--git', type=str,
             dest='commit_id',
             help='Use this option to install a specific commit of ape.'
         )
         parser.add_argument(
-            '--v', type=str,
+            '--pypi', type=str,
             dest='version',
-            help='Use this option to install a specific version of ape'
+            help='Use this option to install a specific version of ape from PyPI'
         )
         parser.add_argument(
-            '--p',
+            '--python',
             type=str,
             dest='python_executable',
-            help='Use this option to pass a custom python executable. E.g. to use Python 3.'
+            help='Use this option to pass a custom python executable. E.g. to use python3.'
         )
 
         self.arg_dict = parser.parse_args()
@@ -194,6 +194,7 @@ def main():
         sys.exit(1)
 
     venv = VirtualEnv(VENV_DIR)
+    print(APE_INSTALL_ARGS)
     venv.pip('install', *APE_INSTALL_ARGS)
 
     print('*** creating _ape/activape and aperun scripts')

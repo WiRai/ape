@@ -33,7 +33,7 @@ class InstallTest(unittest.TestCase):
         Tests the installation with an explicitly passed python executable.
         :return:
         """
-        sys.argv = ['ape_install', self._get_webapps_dir(), '--p', 'python3']
+        sys.argv = ['ape_install', self._get_webapps_dir(), '--python', 'python3']
         ape_install.main()
 
     def test_ape_version_installation(self):
@@ -41,7 +41,7 @@ class InstallTest(unittest.TestCase):
         Tests the installation with an explicitly passed ape version.
         :return:
         """
-        sys.argv = ['ape_install', self._get_webapps_dir(), '--v', '0.3']
+        sys.argv = ['ape_install', self._get_webapps_dir(), '--pypi', '0.3']
         ape_install.main()
 
     def test_ape_commit_id_installation(self):
@@ -49,9 +49,5 @@ class InstallTest(unittest.TestCase):
         Tests the installation with an explicitly passed commit id.
         :return:
         """
-        sys.argv = ['ape_install', self._get_webapps_dir(), '--c', '1ad83e92788d89d55ce90c8101502d3a9f6cc5f8']
+        sys.argv = ['ape_install', self._get_webapps_dir(), '--git', '1ad83e92788d89d55ce90c8101502d3a9f6cc5f8']
         ape_install.main()
-
-
-
-
