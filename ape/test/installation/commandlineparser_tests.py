@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import unittest
 from ..base import SilencedTest
 import sys, os
+from os.path import normpath
 import ape_install
 
 __all__ = ['CommandLineParserTest']
@@ -31,11 +32,11 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
 
         cwd = os.getcwd()
 
-        self.assertEquals(APE_ROOT_DIR, os.path.join(cwd, target_dir))
-        self.assertEquals(APE_DIR, os.path.join(cwd, target_dir, '_ape'))
-        self.assertEquals(VENV_DIR, os.path.join(cwd, target_dir, '_ape/venv'))
-        self.assertEquals(ACTIVAPE_DEST, os.path.join(cwd, target_dir, '_ape/activape'))
-        self.assertEquals(APERUN_DEST, os.path.join(cwd, target_dir, '_ape/aperun'))
+        self.assertEquals(normpath(APE_ROOT_DIR), normpath(os.path.join(cwd, target_dir)))
+        self.assertEquals(normpath(APE_DIR), normpath(os.path.join(cwd, target_dir, '_ape')))
+        self.assertEquals(normpath(VENV_DIR), normpath(os.path.join(cwd, target_dir, '_ape/venv')))
+        self.assertEquals(normpath(ACTIVAPE_DEST), normpath(os.path.join(cwd, target_dir, '_ape/activape')))
+        self.assertEquals(normpath(APERUN_DEST), normpath(os.path.join(cwd, target_dir, '_ape/aperun')))
 
     def test_venv_creation_args(self):
         """
@@ -43,7 +44,7 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         :return:
         """
         target_dir = 'webapps'
-        sys.argv = ['ape_install.py', target_dir, '--p', 'python3']
+        sys.argv = ['ape_install.py', target_dir, '--python', 'python3']
 
         cmdargs = ape_install.CommandLineParser()
         VENV_CREATION_ARGS = cmdargs.get_venv_creation_args()
@@ -56,7 +57,7 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         :return:
         """
         target_dir = 'webapps'
-        sys.argv = ['ape_install.py', target_dir, '--v', '0.3']
+        sys.argv = ['ape_install.py', target_dir, '--pypi', '0.3']
 
         cmdargs = ape_install.CommandLineParser()
         return_val = cmdargs.get_ape_install_args()[0]
@@ -68,7 +69,7 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         :return:
         """
         target_dir = 'webapps'
-        sys.argv = ['ape_install.py', target_dir, '--c', 'aabbcc']
+        sys.argv = ['ape_install.py', target_dir, '--git', 'aabbcc']
 
         cmdargs = ape_install.CommandLineParser()
         return_val = cmdargs.get_ape_install_args()[1] # [1] must be the URL containing the commit id
@@ -80,7 +81,7 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         :return:
         """
         target_dir = 'webapps'
-        sys.argv = ['ape_install.py', target_dir, '--c', 'aabbcc', '--v', '0.3']
+        sys.argv = ['ape_install.py', target_dir, '--git', 'aabbcc', '--pypi', '0.3']
 
         self.assertRaises(
             ape_install.VersionCommitIdClash,
