@@ -74,14 +74,22 @@ class CommandLineParser(object):
             help='Specifies the APE_ROOT_DIR that is to be created.'
         )
         parser.add_argument(
-            '--git', type=str,
+            '--git',
+            type=str,
             dest='commit_id',
             help='Use this option to install a specific commit of ape.'
         )
         parser.add_argument(
-            '--pypi', type=str,
+            '--pypi',
+            type=str,
             dest='version',
             help='Use this option to install a specific version of ape from PyPI'
+        )
+        parser.add_argument(
+            '--dev',
+            dest='dev',
+            action='store_true',
+            help='Install development version (tip of master branch at github)'
         )
         parser.add_argument(
             '--python',
@@ -92,8 +100,17 @@ class CommandLineParser(object):
 
         self.arg_dict = parser.parse_args()
         # check for exclusive arguments.
-        if self.arg_dict.version and self.arg_dict.commit_id:
+        numversionargs = sum([int(x) for x in [
+            bool(self.arg_dict.commit_id),
+            bool(self.arg_dict.version),
+            self.arg_dict.dev,
+        ]])
+        
+        if numversionargs > 1:
             raise VersionCommitIdClash()
+
+        if self.arg_dict.dev:
+            self.arg_dict.commit_id = 'master'
 
     def get_venv_creation_args(self):
         """
