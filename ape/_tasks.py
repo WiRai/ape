@@ -5,6 +5,8 @@ APE - a productive environment
 """
 from __future__ import absolute_import
 from __future__ import print_function
+
+
 FEATURE_SELECTION = []
 #Tasks specified here are globally available.
 #
@@ -102,3 +104,13 @@ def explain_features():
     for featurename in featurenames:
         tasks.explain_feature(featurename)
 
+
+def selftest():
+    '''run ape tests'''
+    import sys
+    import ape.test
+    from ape import test
+
+    result = test.run_all()
+    retval = 0 if result.wasSuccessful() else 1
+    sys.exit(retval)
