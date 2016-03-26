@@ -1,5 +1,10 @@
 import sys
-from cStringIO import StringIO
+try:
+    #py2
+    from cStringIO import StringIO
+except:
+    #py3
+    from io import StringIO
 
 class SilencedTest(object):
     '''mixin for unittest.TestCase
@@ -15,4 +20,3 @@ class SilencedTest(object):
     def tearDown(self):
         sys.stdout = self.out
         sys.stderr = self.err
-
