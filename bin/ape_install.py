@@ -212,13 +212,18 @@ def main():
     os.mkdir(APE_ROOT_DIR)
     os.mkdir(APE_DIR)
 
-    # install the venv
-    # -----------------------------------------
-    try:
-        call(VENV_CREATION_ARGS)
-    except OSError:
-        print('You probably dont have virtualenv installed: pip install virtualenv')
-        sys.exit(1)
+    if version_info < (3, 0):
+        # install the venv on python2
+        try:
+            call(VENV_CREATION_ARGS)
+        except OSError:
+            raise InstallationError('You probably dont have virtualenv installed: pip install virtualenv')
+
+    else:
+        #for py3.4 and up, use venv module from stdlib
+        from venv import EnvBuilder
+        builder = EnvBuilder(with_pip=True)
+        builder.create(VENV_DIR)
 
     venv = VirtualEnv(VENV_DIR)
     print(APE_INSTALL_ARGS)
