@@ -84,6 +84,5 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         sys.argv = ['ape_install.py', target_dir, '--git', 'aabbcc', '--pypi', '0.3']
 
         self.assertRaises(
-            ape_install.VersionCommitIdClash,
-            ape_install.CommandLineParser,
+            ape_install.InstallationError,
         )
