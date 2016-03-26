@@ -178,6 +178,15 @@ def main():
     Main installation is executed here.
     :return:
     """
+    version_info = sys.version_info
+
+    print()
+    print('a productive environment installation started')
+    print()
+    print('...running on Python %s' % '.'.join([str(x) for x in version_info]))
+
+    if version_info < (2, 6) or (version_info >= (3, 0) and version_info < (3, 4)):
+        raise InstallationError('Unsupported python version. Please use Python 2.6., 2.7, or 3.4+.')
 
     # init the argparser
     cmdargs = CommandLineParser()
