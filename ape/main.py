@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import inspect
 import importlib
@@ -80,7 +81,7 @@ def run(args, features=None):
         try:
             task = tasks.get_task(taskname, include_helpers=False)
         except TaskNotFound:
-            print 'Task "%s" not found! Use "ape help" to get usage information.' % taskname
+            print('Task "%s" not found! Use "ape help" to get usage information.' % taskname)
         else:
             remaining_args = args[2:] if len(args) > 2 else []
             invoke_task(task, remaining_args)
@@ -111,7 +112,7 @@ def main():
             features += get_features_from_equation_file(feature_file)
         else:
             if not features:
-                print (
+                print(
                     'Error running ape:\n'
                     'Either the PRODUCT_EQUATION or '
                     'PRODUCT_EQUATION_FILENAME environment '
