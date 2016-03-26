@@ -3,7 +3,6 @@ from __future__ import print_function
 from ape import tasks
 import os
 import sys
-from six.moves import filter
 
 
 class Config(object):
@@ -41,11 +40,10 @@ def get_products(container_name):
         return []
     products = os.listdir(products_dir)
 
-    def predicate(p):
+    def is_product(p):
         return not p.startswith('.') and not p.startswith('_')
 
-    products = list(filter(predicate, products))
-    return products
+    return [product for product in products if is_product(product)]
 
 
 @tasks.register
@@ -177,4 +175,3 @@ def install_container(container_name):
 def get_extra_pypath(container_name=None):
     from ape.installtools import pypath
     return pypath.get_extra_pypath()
-
