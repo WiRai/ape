@@ -9,6 +9,12 @@ from os.path import join as pj
 import argparse
 
 
+class InstallationError(Exception):
+    '''
+    generic exception for installation failure
+    '''
+    pass
+
 
 class VirtualEnv(object):
     """
@@ -26,7 +32,7 @@ class VirtualEnv(object):
                 break
         
         if not self.bin_dir:
-            raise Exception('bin dir not found in virtualenv')
+            raise InstallationError('bin dir not found in virtualenv')
 
 
     def call_bin(self, script_name, args):
@@ -40,14 +46,6 @@ class VirtualEnv(object):
 
     def python_oneliner(self, snippet):
         self.python('-c', snippet)
-
-
-class VersionCommitIdClash(Exception):
-    """
-    Raised in case both version and commit ID was passed which is illegal
-    as both are exclusive.
-    """
-    pass
 
 
 class CommandLineParser(object):
@@ -107,7 +105,7 @@ class CommandLineParser(object):
         ]])
         
         if numversionargs > 1:
-            raise VersionCommitIdClash()
+            raise InstallationError('more than one of the following exclusive parameters specified: --dev --git --pypi')
 
         if self.arg_dict.dev:
             self.arg_dict.commit_id = 'master'
@@ -182,11 +180,7 @@ def main():
     """
 
     # init the argparser
-    try:
-        cmdargs = CommandLineParser()
-    except VersionCommitIdClash as e:
-        print('ERROR: either specify version XOR commit_id, not both')
-        sys.exit(1)
+    cmdargs = CommandLineParser()
 
     # init all variables needed for furher installation
     APE_ROOT_DIR = cmdargs.get_ape_root_dir()
@@ -199,14 +193,10 @@ def main():
 
     # create the ape root dir
     if os.path.exists(APE_ROOT_DIR):
-        print('ape root dir already exists: ', APE_ROOT_DIR)
-        print('aborted')
-        sys.exit(1)
+        raise InstallationError('ape root dir already exists: ', APE_ROOT_DIR)
 
     if not os.path.isdir(os.path.dirname(APE_ROOT_DIR)):
-        print('parent directory not found: ', os.path.dirname(APE_ROOT_DIR))
-        print('aborted')
-        sys.exit(1)
+        raise InstallationError('Parent directory not found: ', os.path.dirname(APE_ROOT_DIR))
 
     # create the required ape directories
     # -----------------------------------------
@@ -250,17 +240,18 @@ def main():
     os.chmod(APERUN_DEST, st.st_mode | stat.S_IEXEC)
 
     if not os.path.isfile(ACTIVAPE_DEST):
-        print('!!Error creating activape script!!')
-        print('aborted')
-        sys.exit(1)
+        raise InstallationError('Error creating activape script')
 
     if not os.path.isfile(APERUN_DEST):
-        print('!!Error creating aperun script!!')
-        print('aborted')
-        sys.exit(1)
+        raise InstallationError('Error creating aperun script')
 
     print()
     print('*** ape container mode setup complete')
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except InstallationError as e:
+        print(repr(e))
+        print('aborted')
+        sys.exit(1)
