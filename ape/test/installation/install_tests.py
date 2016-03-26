@@ -6,6 +6,15 @@ import uuid
 import tempfile
 import ape_install
 
+try:
+    from unittest import skip
+except:
+    def skip(reason):
+        def wrapper(func):
+            return None
+        return wrapper
+
+
 __all__ = ['InstallTest']
 
 class InstallTest(unittest.TestCase):
@@ -20,7 +29,7 @@ class InstallTest(unittest.TestCase):
         """
         return os.path.join(tempfile.gettempdir(), 'webapps_%s' % uuid.uuid4())
 
-    @unittest.skip('pypi version does not support py3 currently')
+    @skip('pypi version does not support py3 currently')
     def test_simple_installation(self):
         """
         Tests the simple installation without any further arguments.
@@ -29,7 +38,7 @@ class InstallTest(unittest.TestCase):
         sys.argv = ['ape_install', self._get_webapps_dir()]
         ape_install.main()
 
-    @unittest.skip('pypi version does not support py3 currently')
+    @skip('pypi version does not support py3 currently')
     def test_python_executable_installation(self):
         """
         Tests the installation with an explicitly passed python executable.
@@ -38,7 +47,7 @@ class InstallTest(unittest.TestCase):
         sys.argv = ['ape_install', self._get_webapps_dir(), '--git', 'python3', '--python', 'python']
         ape_install.main()
 
-    @unittest.skip('pypi version does not support py3 currently')
+    @skip('pypi version does not support py3 currently')
     def skip_test_ape_version_installation(self):
         """
         Tests the installation with an explicitly passed ape version.
@@ -55,7 +64,7 @@ class InstallTest(unittest.TestCase):
         sys.argv = ['ape_install', self._get_webapps_dir(), '--git', 'python3']
         ape_install.main()
 
-    @unittest.skip('master branch does not support py3 currently')
+    @skip('master branch does not support py3 currently')
     def test_ape_development_installation(self):
         """
         Tests the installation with an explicitly passed commit id.
