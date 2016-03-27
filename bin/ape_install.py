@@ -8,6 +8,13 @@ from subprocess import call
 from os.path import join as pj
 import argparse
 
+try:
+    #py3
+    from urllib.request import urlretrieve
+except:
+    #py2 fallback
+    from urllib import urlretrieve
+
 
 class InstallationError(Exception):
     '''
@@ -220,15 +227,24 @@ def main():
             call(VENV_CREATION_ARGS)
         except OSError:
             raise InstallationError('You probably dont have virtualenv installed: pip install virtualenv')
-
+        venv = VirtualEnv(VENV_DIR)
     else:
         #for py3.4 and up, use venv module from stdlib
         from venv import EnvBuilder
         builder = EnvBuilder(with_pip=True)
         builder.create(VENV_DIR)
 
-    venv = VirtualEnv(VENV_DIR)
-    print(APE_INSTALL_ARGS)
+        #check if pip is installed - for some reason, it is currently unavailable on travis ci
+        venv = VirtualEnv(VENV_DIR)
+        if not os.path.isfile(os.path.join(venv.bin_dir, 'pip')):
+            urlretrieve('https://bootstrap.pypa.io/get-pip.py', 'get-pip.py')
+            venv.python('get-pip.py')
+            os.remove('get-pip.py')
+
+        if not os.path.isfile(os.path.join(venv.bin_dir, 'pip')):
+            raise InstallationError('Unable to install pip in venv')
+
+    print('installing ape: ' + repr(APE_INSTALL_ARGS))
     venv.pip('install', *APE_INSTALL_ARGS)
 
     print('*** creating _ape/activape and aperun scripts')
