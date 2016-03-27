@@ -27,7 +27,10 @@ class InstallTest(unittest.TestCase):
         Returns a path to a uuid-suffixed webapps dir in the system's tempfolder.
         :return:
         """
-        return os.path.join(tempfile.gettempdir(), 'webapps_%s' % uuid.uuid4())
+        tmpdir_root = tempfile.gettempdir()
+        if 'TRAVIS' in os.environ:
+            tmpdir_root = os.path.abspath('.')
+        return os.path.join(tmpdir_root, 'webapps_%s' % uuid.uuid4())
 
     @skip('pypi version does not support py3 currently')
     def test_simple_installation(self):
