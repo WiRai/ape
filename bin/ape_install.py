@@ -34,6 +34,8 @@ class VirtualEnv(object):
         if not self.bin_dir:
             raise InstallationError('bin dir not found in virtualenv')
 
+        print os.listdir(self.bin_dir)
+
 
     def call_bin(self, script_name, args):
         call([pj(self.bin_dir, script_name)] + list(args))
