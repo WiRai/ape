@@ -42,13 +42,17 @@ class VirtualEnv(object):
             raise InstallationError('bin dir not found in virtualenv')
 
         print(os.listdir(self.bin_dir))
+        self.non_local_pip = False
 
 
     def call_bin(self, script_name, args):
         call([pj(self.bin_dir, script_name)] + list(args))
 
     def pip(self, *args):
-        self.call_bin('pip', list(args))
+        if self.non_local_pip:
+            self.python(*['-m', 'pip'] + list(args))
+        else:
+            self.call_bin('pip', list(args))
 
     def python(self, *args):
         self.call_bin('python', args)
@@ -242,7 +246,9 @@ def main():
             os.remove('get-pip.py')
 
         if not os.path.isfile(os.path.join(venv.bin_dir, 'pip')):
-            raise InstallationError('Unable to install pip in venv')
+            #after installation, if pip is still not here, assume that pip works
+            venv.non_local_pip = True
+            #raise InstallationError('Unable to install pip in venv')
 
     print('installing ape: ' + repr(APE_INSTALL_ARGS))
     venv.pip('install', *APE_INSTALL_ARGS)
