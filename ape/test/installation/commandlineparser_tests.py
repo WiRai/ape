@@ -61,7 +61,7 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
 
         cmdargs = ape_install.CommandLineParser()
         return_val = cmdargs.get_ape_install_args()[0]
-        self.assertIn('ape==0.3', return_val)
+        self.assertTrue('ape==0.3' in return_val)
 
     def test_ape_install_args_with_commit_id(self):
         """
@@ -73,7 +73,7 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
 
         cmdargs = ape_install.CommandLineParser()
         return_val = cmdargs.get_ape_install_args()[1] # [1] must be the URL containing the commit id
-        self.assertIn('@aabbcc', return_val)
+        self.assertTrue('@aabbcc' in return_val)
 
     def test_ape_install_version_xor_commit_id(self):
         """
