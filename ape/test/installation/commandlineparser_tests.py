@@ -48,8 +48,8 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
 
         cmdargs = ape_install.CommandLineParser()
         VENV_CREATION_ARGS = cmdargs.get_venv_creation_args()
-        self.assertIn('-p', VENV_CREATION_ARGS)
-        self.assertIn('python3', VENV_CREATION_ARGS)
+        self.assertTrue('-p' in VENV_CREATION_ARGS)
+        self.assertTrue('python3', VENV_CREATION_ARGS)
 
     def test_ape_install_args_with_version(self):
         """
@@ -85,4 +85,5 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
 
         self.assertRaises(
             ape_install.InstallationError,
+            ape_install.CommandLineParser
         )

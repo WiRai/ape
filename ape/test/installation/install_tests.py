@@ -1,10 +1,15 @@
 from __future__ import absolute_import
+from __future__ import print_function
+import warnings
 import unittest
 from ..base import SilencedTest
 import sys, os
 import uuid
 import tempfile
 import ape_install
+import shutil
+import time
+import stat
 
 try:
     from unittest import skip
@@ -17,10 +22,40 @@ except:
 
 __all__ = ['InstallTest']
 
-class InstallTest(unittest.TestCase):
+
+def _rmtree_onerror(func, path, exc_info):
+    """
+    error handler for rmtree
+
+    also delete readonly files if possible, ignore otherwise
+    """
+    success = False
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWUSR)
+        try:
+            func(path)
+            success = True
+        except:
+            pass
+
+    if not success:
+        warnings.warn("Unable to delete test container. Please clean up '%s' manually. Error was: %s" % (path, str(exc_info)))
+
+
+def rmtree(path):
+    shutil.rmtree(path, False, _rmtree_onerror)
+
+
+class InstallTest(SilencedTest, unittest.TestCase):
     """
     Testcases for the ape_install installation script.
     """
+
+    def tearDown(self):
+        SilencedTest.tearDown(self)
+
+        if os.path.isdir(self._webapps_dir):
+            rmtree(self._webapps_dir)
 
     def _get_webapps_dir(self):
         """
@@ -30,7 +65,8 @@ class InstallTest(unittest.TestCase):
         tmpdir_root = tempfile.gettempdir()
         if 'TRAVIS' in os.environ:
             tmpdir_root = os.path.abspath('.')
-        return os.path.join(tmpdir_root, 'webapps_%s' % uuid.uuid4())
+        self._webapps_dir = os.path.join(tmpdir_root, 'webapps_%s' % uuid.uuid4())
+        return self._webapps_dir
 
     @skip('pypi version does not support py3 currently')
     def test_simple_installation(self):
