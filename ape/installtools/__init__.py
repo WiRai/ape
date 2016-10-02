@@ -6,13 +6,12 @@ from .venv import VirtualEnv
 from .pool import FeaturePool 
 
 
-
 def get_ape_venv():
     '''
     Returns the _ape virtualenv.
     '''
     return VirtualEnv(os.path.join(os.environ['APE_GLOBAL_DIR'], 'venv'))
-    
+
 
 def cleanup():
     '''
@@ -22,8 +21,8 @@ def cleanup():
     if os.path.exists(lib_dir):
         shutil.rmtree(lib_dir)
     os.mkdir(lib_dir)
-    
-    
+
+
 def create_project_venv():
     '''
     Creates a project-level virtualenv and returns a ``VirtualEnv`` object.
@@ -34,7 +33,7 @@ def create_project_venv():
     if os.path.exists(venv_dir):
         print('ERROR: virtualenv already exists!')
         sys.exit()
-    
+
     try:
         r = call(['virtualenv', venv_dir, '--no-site-packages'])
     except OSError:
@@ -43,37 +42,43 @@ def create_project_venv():
         
     if r != 0:
         raise Exception('ERROR: please install virtualenv in your current env.')
-    
+
     print('... virtualenv successfully created')
     return VirtualEnv(venv_dir)
 
 
-def fetch_pool(repo_url):
+def fetch_pool(repo_url, branch='master'):
     '''
     Fetches a git repository from ``repo_url`` and returns a ``FeaturePool`` object.
     '''
     repo_name = repo_url.split('.git')[0].split('/')[-1]
     lib_dir = os.path.join(os.environ['CONTAINER_DIR'], '_lib')
     print('... fetching %s ' % repo_name)
-    
+
     if os.path.exists(os.path.join(lib_dir, repo_name)):
         print('ERROR: repository already exists') 
         sys.exit()
-        
+
     try:
         a = call(['git', 'clone', repo_url], cwd=lib_dir)
     except OSError:
         print('ERROR: You probably dont have git installed: sudo apt-get install git')
         sys.exit()
-    
+
     if a != 0:
         print('ERROR: check your repository url and credentials!')
         sys.exit()
-    
+
+    try:
+        call(['git', 'checkout', branch], cwd=os.path.join(lib_dir, repo_name))
+    except OSError:
+        print('ERROR: cannot switch branches')
+        sys.exit()
+
     print('... repository successfully cloned')
+
     return FeaturePool(os.path.join(lib_dir, repo_name))
-    
-        
+
 
 def add_to_path(*args):
     print('... adding paths')
@@ -83,17 +88,9 @@ def add_to_path(*args):
             paths += path
         else:
             paths.append(path)
-    
+
     target = os.path.join(os.environ['CONTAINER_DIR'], '_lib/paths.json')
     f = open(target, 'w')
     f.write(json.dumps(paths))
     f.close()
     print('... wrote paths.json')
-    
-    
-    
-    
-    
-    
-    
-    
