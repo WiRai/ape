@@ -3,6 +3,7 @@ import unittest
 from ape.test.argparser import ArgParserTest
 from ape.test.invokation import TaskInvokationTest
 from ape.test.installation import *
+from ape.test.core_tasks import CoreTasksTest
 
 
 def suite():
@@ -11,6 +12,7 @@ def suite():
         unittest.TestLoader().loadTestsFromTestCase(TaskInvokationTest),
         unittest.TestLoader().loadTestsFromTestCase(InstallTest),
         unittest.TestLoader().loadTestsFromTestCase(CommandLineParserTest),
+        unittest.TestLoader().loadTestsFromTestCase(CoreTasksTest),
     ]
     return unittest.TestSuite(cases)
 
