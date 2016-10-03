@@ -60,6 +60,11 @@ class VirtualEnv(object):
     def python_oneliner(self, snippet):
         self.python('-c', snippet)
 
+    def has_pip(self):
+        return (
+            os.path.isfile(pj(self.bin_dir, 'pip'))
+            or os.path.isfile(pj(self.bin_dir, 'pip.exe'))
+        )
 
 class CommandLineParser(object):
     """
@@ -82,7 +87,7 @@ class CommandLineParser(object):
         parser.add_argument(
             'ape_root_dir',
             type=str,
-            help='Specifies the APE_ROOT_DIR that is to be created.'
+            help='Specifies the ape_root_dir that is to be created.'
         )
         parser.add_argument(
             '--git',
@@ -103,10 +108,16 @@ class CommandLineParser(object):
             help='Install development version (tip of master branch at github)'
         )
         parser.add_argument(
-            '--python',
-            type=str,
-            dest='python_executable',
-            help='Use this option to pass a custom python executable. E.g. to use python3.'
+            '--local-checkout',
+            dest='local_checkout',
+            action='store_true',
+            help='Install local ape version (assumes you cloned the repo e.g. for hacking on ape itself)'
+        )
+        parser.add_argument(
+            '--use-pyenv',
+            dest='use_pyenv',
+            action='store_true',
+            help='EXPERIMENTAL: set this, to use pyenv instead of virtualenv (requires at least python3.5)'
         )
 
         self.arg_dict = parser.parse_args()
@@ -115,10 +126,14 @@ class CommandLineParser(object):
             bool(self.arg_dict.commit_id),
             bool(self.arg_dict.version),
             self.arg_dict.dev,
+            self.arg_dict.local_checkout,
         ]])
         
         if numversionargs > 1:
-            raise InstallationError('more than one of the following exclusive parameters specified: --dev --git --pypi')
+            raise InstallationError('more than one of the following exclusive parameters specified: --dev --git --pypi --local-checkout')
+
+        if self.arg_dict.use_pyenv and sys.version_info < (3, 4):
+            raise InstallationError('--use-pyenv is unsupported for this python version. Use python3.5 or above.')
 
         if self.arg_dict.dev:
             self.arg_dict.commit_id = 'master'
@@ -129,8 +144,6 @@ class CommandLineParser(object):
         :return: list
         """
         install_cmd = ['virtualenv', self.get_venv_dir(), '--no-site-packages']
-        if self.arg_dict.python_executable:
-            install_cmd += ['-p', self.arg_dict.python_executable]
         return install_cmd
 
     def get_ape_root_dir(self):
@@ -205,53 +218,54 @@ def main():
     cmdargs = CommandLineParser()
 
     # init all variables needed for furher installation
-    APE_ROOT_DIR = cmdargs.get_ape_root_dir()
-    APE_DIR = cmdargs.get_ape_dir()
-    VENV_DIR = cmdargs.get_venv_dir()
-    VENV_CREATION_ARGS = cmdargs.get_venv_creation_args()
-    APE_INSTALL_ARGS = cmdargs.get_ape_install_args()
-    ACTIVAPE_DEST = cmdargs.get_activape_dest()
-    APERUN_DEST = cmdargs.get_aperun_dest()
+    ape_root_dir = cmdargs.get_ape_root_dir()
+    ape_dir = cmdargs.get_ape_dir()
+    venv_dir = cmdargs.get_venv_dir()
+    venv_creation_args = cmdargs.get_venv_creation_args()
+    ape_install_args = cmdargs.get_ape_install_args()
+    activape_dest = cmdargs.get_activape_dest()
+    aperun_dest = cmdargs.get_aperun_dest()
 
     # create the ape root dir
-    if os.path.exists(APE_ROOT_DIR):
-        raise InstallationError('ape root dir already exists: ', APE_ROOT_DIR)
+    if os.path.exists(ape_root_dir):
+        raise InstallationError('ape root dir already exists: ', ape_root_dir)
 
-    if not os.path.isdir(os.path.dirname(APE_ROOT_DIR)):
-        raise InstallationError('Parent directory not found: ', os.path.dirname(APE_ROOT_DIR))
+    if not os.path.isdir(os.path.dirname(ape_root_dir)):
+        raise InstallationError('Parent directory not found: ', os.path.dirname(ape_root_dir))
 
     # create the required ape directories
     # -----------------------------------------
-    os.mkdir(APE_ROOT_DIR)
-    os.mkdir(APE_DIR)
+    os.mkdir(ape_root_dir)
+    os.mkdir(ape_dir)
 
-    if version_info < (3, 0):
-        # install the venv on python2
+    if not cmdargs.arg_dict.use_pyenv:
+        # default: install the venv on python2
         try:
-            call(VENV_CREATION_ARGS)
+            call(venv_creation_args)
         except OSError:
             raise InstallationError('You probably dont have virtualenv installed: pip install virtualenv')
-        venv = VirtualEnv(VENV_DIR)
+        venv = VirtualEnv(venv_dir)
     else:
         #for py3.4 and up, use venv module from stdlib
         from venv import EnvBuilder
         builder = EnvBuilder(with_pip=True)
-        builder.create(VENV_DIR)
+        builder.create(venv_dir)
 
         #check if pip is installed - for some reason, it is currently unavailable on travis ci
-        venv = VirtualEnv(VENV_DIR)
-        if not os.path.isfile(os.path.join(venv.bin_dir, 'pip')):
+        venv = VirtualEnv(venv_dir)
+        if not venv.has_pip():
             urlretrieve('https://bootstrap.pypa.io/get-pip.py', 'get-pip.py')
             venv.python('get-pip.py')
             os.remove('get-pip.py')
 
-        if not os.path.isfile(os.path.join(venv.bin_dir, 'pip')):
-            #after installation, if pip is still not here, assume that pip works
-            venv.non_local_pip = True
-            #raise InstallationError('Unable to install pip in venv')
+    #validate that pip is available in venv
+    if not venv.has_pip():
+        #after installation, if pip is still not here, assume that pip works
+        #TODO venv.non_local_pip = True
+        raise InstallationError('Unable to install pip in venv')
 
-    print('installing ape: ' + repr(APE_INSTALL_ARGS))
-    venv.pip('install', *APE_INSTALL_ARGS)
+    print('installing ape: ' + repr(ape_install_args))
+    venv.pip('install', *ape_install_args)
 
     print('*** creating _ape/activape and aperun scripts')
 
@@ -262,7 +276,7 @@ def main():
         'pkg_resources.resource_filename('
         '"ape", "resources/activape_template"'
         ')), "%s")'
-         % ACTIVAPE_DEST.replace('\\', '/')
+         % activape_dest.replace('\\', '/')
     )
 
     venv.python_oneliner(
@@ -271,16 +285,16 @@ def main():
         'pkg_resources.resource_filename('
         '"ape", "resources/aperun_template"'
         ')), "%s")'
-         % APERUN_DEST.replace('\\', '/')
+         % aperun_dest.replace('\\', '/')
     )
 
-    st = os.stat(APERUN_DEST)
-    os.chmod(APERUN_DEST, st.st_mode | stat.S_IEXEC)
+    st = os.stat(aperun_dest)
+    os.chmod(aperun_dest, st.st_mode | stat.S_IEXEC)
 
-    if not os.path.isfile(ACTIVAPE_DEST):
+    if not os.path.isfile(activape_dest):
         raise InstallationError('Error creating activape script')
 
-    if not os.path.isfile(APERUN_DEST):
+    if not os.path.isfile(aperun_dest):
         raise InstallationError('Error creating aperun script')
 
     print()

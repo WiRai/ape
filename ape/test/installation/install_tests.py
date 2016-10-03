@@ -40,7 +40,7 @@ def _rmtree_onerror(func, path, exc_info):
             pass
 
     if not success:
-        warnings.warn("Unable to delete test container. Please clean up '%s' manually. Error was: %s" % (path, str(exc_info)))
+        print("!!! Unable to delete folder. Please clean up '%s' manually. Error was: %s" % (path, str(exc_info)))
 
 
 def rmtree(path):
@@ -60,6 +60,7 @@ class InstallTest(SilencedTest, unittest.TestCase):
         SilencedTest.tearDown(self)
 
         if os.path.isdir(self._webapps_dir):
+            print('deleting testcontainer')
             rmtree(self._webapps_dir)
 
     def _get_webapps_dir(self):
@@ -91,7 +92,16 @@ class InstallTest(SilencedTest, unittest.TestCase):
         self.assertTrue(os.path.isfile(pj(install_dir, '_ape', 'aperun')), 'aperun script should exist')
 
         self.assertTrue(os.path.isdir(pj(install_dir, '_ape', 'venv')), '_ape/venv should exist')
-
+        self.assertTrue(
+            os.path.isfile(pj(install_dir, '_ape', 'venv/bin/activate'))
+                or os.path.isfile(pj(install_dir, '_ape', 'venv/Scripts/activate.bat')),
+            '_ape/venv/.../activate should exist'
+        )
+        self.assertTrue(
+            os.path.isfile(pj(install_dir, '_ape', 'venv/bin/pip'))
+                or os.path.isfile(pj(install_dir, '_ape', 'venv/Scripts/pip.exe')),
+            '_ape/venv/.../pip should exist'
+        )
 
 
     @skip('pypi version does not support py3 currently')
@@ -101,15 +111,6 @@ class InstallTest(SilencedTest, unittest.TestCase):
         :return:
         """
         install_dir = self.run_install()
-        self.verify_install(install_dir)
-
-    @skip('pypi version does not support py3 currently')
-    def test_python_executable_installation(self):
-        """
-        Tests the installation with an explicitly passed python executable.
-        :return:
-        """
-        install_dir = self.run_install('--git', 'python3', '--python', 'python')
         self.verify_install(install_dir)
 
     @skip('pypi version does not support py3 currently')

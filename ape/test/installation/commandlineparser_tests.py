@@ -44,12 +44,11 @@ class CommandLineParserTest(SilencedTest, unittest.TestCase):
         :return:
         """
         target_dir = 'webapps'
-        sys.argv = ['ape_install.py', target_dir, '--python', 'python3']
+        sys.argv = ['ape_install.py', target_dir]
 
         cmdargs = ape_install.CommandLineParser()
-        VENV_CREATION_ARGS = cmdargs.get_venv_creation_args()
-        self.assertTrue('-p' in VENV_CREATION_ARGS)
-        self.assertTrue('python3', VENV_CREATION_ARGS)
+        venv_creation_args = cmdargs.get_venv_creation_args()
+        self.assertTrue('virtualenv' in venv_creation_args)
 
     def test_ape_install_args_with_version(self):
         """
